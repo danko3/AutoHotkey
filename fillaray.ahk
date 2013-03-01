@@ -1,5 +1,5 @@
 ; quick and dirty testfile creator
-size = 100   ; <---- edit!  100 x 100 array
+size = 50   ; <---- edit!  50 x 50 array
 xmin  = -20  ; <---- edit!  function range
 xmax  =  20  ; <---- edit!  function range
 func = sinc  ; <---- edit!  'sinc' or 'normal'

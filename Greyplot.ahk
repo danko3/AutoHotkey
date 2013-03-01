@@ -13,6 +13,12 @@ Written to prove that you can make a plotting program
 in Autohotkey without external libraries or programs.
 In fact jonny did that already, but now not to plot functions
 but 'real' data from a file.
+
+  needs:
+ ¯¯¯¯¯¯
+ - Grapher2.ahk
+ - An ASCII datafile. (now sinc50.csv (line 48))
+ 
 */
 
 /*
@@ -31,18 +37,27 @@ Revision History
 /*
 ********** Settings, Variable Declarations **********
 */
-
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SetTitleMatchMode,2 ; string somewhere in titel is ok.
+SetTitleMatchMode,fast  ; makes window recognition more reliable 
 #SingleInstance Force
-#NoEnv
+
 OnExit, quit
 
 Start := A_TickCount  ; timer
+duration = 0
 
-
-PlotFile = sinc16.csv
+PlotFile = sinc50.csv
 if not FileExist(Plotfile)
 {
   MsgBox, Datafile %Plotfile% missing
+ExitApp
+}
+if not FileExist(Grapher2.ahk)
+{
+  MsgBox,16,Error, Grapher2.ahk missing
 ExitApp
 }
 ;write to the array

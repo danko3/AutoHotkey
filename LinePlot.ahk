@@ -17,7 +17,7 @@ Feel free to improve and comment.
  needs:
  ¯¯¯¯¯¯
  - Grapher1.ahk
- - An ASCII datafile. now (8055.log (line 49))
+ - An ASCII datafile. (now 8055.log (line 49))
  
 */
 
@@ -61,9 +61,9 @@ chan += 1 ; the column to plot
 ymax = 0
 ymin = 100000
 
-if not FileExist(Grapher1.ahk)
+if not FileExist(grapher1.ahk)
 {
-  MsgBox,16,Error, Grapher1.ahk missing
+  MsgBox,16,Error, grapher1.ahk missing
 ExitApp
 }
 ; First read the file to see the size and the values

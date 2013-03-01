@@ -1,5 +1,5 @@
 /*
-Plotfile.ahk v1.0
+LinePlot.ahk v1.0
  by danko
 
 Simple plotting program.
@@ -13,6 +13,12 @@ in Autohotkey without external libraries or programs.
 In fact jonny did that already, but now not to plot functions
 but 'real' data from a file.
 Feel free to improve and comment.
+ 
+ needs:
+ ¯¯¯¯¯¯
+ - Grapher1.ahk
+ - An ASCII datafile. now (8055.log (line 49))
+ 
 */
 
 /*
@@ -55,7 +61,11 @@ chan += 1 ; the column to plot
 ymax = 0
 ymin = 100000
 
-
+if not FileExist(Grapher1.ahk)
+{
+  MsgBox,16,Error, Grapher1.ahk missing
+ExitApp
+}
 ; First read the file to see the size and the values
 Array := Object()
 Loop, read, %PlotFile%

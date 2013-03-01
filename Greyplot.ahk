@@ -15,7 +15,7 @@ In fact jonny did that already, but now not to plot functions
 but 'real' data from a file.
 
   needs:
- ¯¯¯¯¯¯
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  - Grapher2.ahk
  - An ASCII datafile. (now sinc50.csv (line 48))
  
@@ -23,13 +23,13 @@ but 'real' data from a file.
 
 /*
 To Do:
-¯¯¯¯¯¯
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 make color scales, resizing?
 */
 
 /*
 Revision History
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 # v[#].[#] ([yyyy]-[mm]-[dd])
 * initial release
 */
@@ -50,14 +50,16 @@ Start := A_TickCount  ; timer
 duration = 0
 
 PlotFile = sinc50.csv
+Graph = grapher.ahk
+
 if not FileExist(Plotfile)
 {
   MsgBox, Datafile %Plotfile% missing
 ExitApp
 }
-if not FileExist(Grapher2.ahk)
+if not FileExist(Graph)
 {
-  MsgBox,16,Error, Grapher2.ahk missing
+  MsgBox,16,Error, File %Graph% missing
 ExitApp
 }
 ;write to the array

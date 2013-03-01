@@ -15,7 +15,7 @@ but 'real' data from a file.
 Feel free to improve and comment.
  
  needs:
- ¯¯¯¯¯¯
+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  - Grapher1.ahk
  - An ASCII datafile. (now 8055.log (line 49))
  
@@ -23,7 +23,7 @@ Feel free to improve and comment.
 
 /*
 To Do:
-¯¯¯¯¯¯
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 Improve code!!! (learn to program)
 more testing more general,
 resizing, zooming, you name it
@@ -32,7 +32,7 @@ See also GreyPlot.ahk
 
 /*
 Revision History
-¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 # v[#].[#] ([yyyy]-[mm]-[dd])
 * initial release
 */
@@ -47,6 +47,7 @@ OnExit, quit
 
 ; k8055.log added as a real world example
 PlotFile = k8055.log ; real values
+Graph = grapher1.ahk
 if not FileExist(Plotfile)
 {
   MsgBox,16,Error, Datafile %Plotfile% missing
@@ -61,9 +62,9 @@ chan += 1 ; the column to plot
 ymax = 0
 ymin = 100000
 
-if not FileExist(grapher1.ahk)
+if not FileExist(graph)
 {
-  MsgBox,16,Error, grapher1.ahk missing
+  MsgBox,16,Error, File %graph% missing
 ExitApp
 }
 ; First read the file to see the size and the values

@@ -13,23 +13,17 @@ Written to prove that you can make a plotting program
 in Autohotkey without external libraries or programs.
 In fact jonny did that already, but now not to plot functions
 but 'real' data from a file.
-
-  needs:
- ������
- - Grapher2.ahk
- - An ASCII datafile. (now sinc50.csv (line 48))
- 
 */
 
 /*
 To Do:
-������
-make color scales, resizing?
+¯¯¯¯¯¯
+make color scales, contourplot?
 */
 
 /*
 Revision History
-����������������
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 # v[#].[#] ([yyyy]-[mm]-[dd])
 * initial release
 */
@@ -37,118 +31,198 @@ Revision History
 /*
 ********** Settings, Variable Declarations **********
 */
-#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-SetTitleMatchMode,2 ; string somewhere in titel is ok.
-SetTitleMatchMode,fast  ; makes window recognition more reliable 
-#SingleInstance Force
 
+#SingleInstance Force
+#NoEnv
 OnExit, quit
 
 Start := A_TickCount  ; timer
-duration = 0
 
-PlotFile = sinc50.csv
-Graph = grapher.ahk
 
-if not FileExist(Plotfile)
-{
-  MsgBox, Datafile %Plotfile% missing
-ExitApp
-}
-if not FileExist(Graph)
-{
-  MsgBox,16,Error, File %Graph% missing
-ExitApp
-}
+PlotFile = volcano1.txt
+
+graph = grapher1.ahk
+
+If not FileExist(Plotfile)
+  {
+    MsgBox, Datafile %Plotfile% missing
+    ExitApp
+  }
+If not FileExist(graph)
+  {
+    MsgBox, File %graph% missing
+    ExitApp
+  }
 ;write to the array
 Array := Object()
-Loop, read, %PlotFile%  
-{
-	Array.Insert(A_LoopReadLine) ; Append this line to the array.
-}
+Loop, Read, %PlotFile%
+  {
+    Array.Insert(A_LoopReadLine) ; Append this line to the array.
+    xw := A_Index
+  }
+
 ymax = 0
 ymin = 100000
 ;read from array
 for index, element in Array ; Recommended approach in most cases.
 {
-	xw := A_Index
-	Loop, parse, element , CSV
-	{
-	  yl := A_Loopfield
-	  yh := A_Index
-	{
-		if (ymax < yl)
-		ymax := yl 
-		if (ymin > yl)
-		ymin := yl
-	 } 
-	}
+  Loop, Parse, element , CSV
+    {
+      yl := A_Loopfield
+      yh := A_Index
+      {
+        If (ymax < yl)
+            ymax := yl
+        If (ymin > yl)
+            ymin := yl
+      }
+}
 }
 
 ydif :=Ymax-ymin
+;MsgBox, xw=%xw% yh=%yh%ymin=%ymin% ydif=%ydif%
 ; sanety check
-if Ydif not between 0.0005 and 2500.0
-{
-	MsgBox,16,Error message, Data of file %PlotFile% out of range`n`n Min = %Ymin%`n`n Max= %Ymax%
-	ExitApp
-}
+If Ydif not Between 0.0005 and 2500.0
+  {
+    MsgBox,16,Error message, Data of file %PlotFile% out of Range`n`n Min = %Ymin%`n`n Max= %Ymax%
+    ExitApp
+  }
 
 ; Plot window size (real estate)
-Height   := 600
-Width    := 600  ;round(x + x/10,-2)
+StartHeight  := 500
+StartWidth   := 500
+If xw>500
+    StartWidth   := xw
+If yh>500
+    StartHeight  := yh
 
-;linewidth of graphs
-__graph_lineWidth := Height/(yh-1)
+TopMargin     = 20
+BottomMargin  = 60
+LeftMargin    = 60
+RightMargin  := 30
+WindowWidth  := StartWidth+LeftMargin+RightMargin
+WindowHeight := StartHeight+TopMargin+BottomMargin
+LegendaPos   := StartHeight+TopMargin+0
+;ylabel       := Round(ydif/StartHeight,4)
+Y_Pos_top_X_Label           := TopMargin-20
+Y_Pos_Bottom_X_Label        := TopMargin+StartHeight+5
+X_Pos_Left_Y_Label          := LeftMargin-35
+xSpace:=Round(xw/10)
 
-#include grapher2.ahk
+#Include grapher4.ahk
 
 DetectHiddenWindows On
 OnExit GuiClose
+Gui Add,Progress, h0
 Process Exist
 WinGet ScriptID,ID,ahk_pid %ErrorLevel%
-Gui Show, W%WindowWidth% h%WindowHeight%,Results
-GraphCreate(ScriptID,LeftMargin,TopMargin,Width,Height,"GraphOpt_")
+Gui, +Resize
 
-for index, element in Array
-{
-  x := A_Index *__graph_lineWidth
-  xleft := x-__graph_lineWidth-1
-  SetFormat, IntegerFast, H ; We're talking Hex now.
-  Loop, parse, element , CSV
-	{
-		y := A_Index *__graph_lineWidth
-		ytop := y-__graph_lineWidth-1
-		z :=  round(255/ydif*(A_Loopfield-ymin)) ; Autoscale the Z values
+; the dummy characters are used to wipe the edges of the plot window
+Gui, font, s900 Cd4d0c8 ; make the characters 'dummy' inVisible
+Gui Add,text, x-30, dummy
+Gui, font
+
+
+; X_labels initialize
+;Gui Add,text, x-30 vxlab0, 0
+Loop, %xw%
+  {
+    If !Mod(A_Index,xSpace) ; Label every 10 units
+        Gui Add,text, x-30 vxlab%A_Index%, ^%A_Index%
+  }
+
+; Y_labels initialize
+Gui Add,text, x-60 w30 +Right vylab0, 0  ; x-60 is left off Screen
+Loop, %yh%
+  {
+    If !Mod(A_Index,xSpace) ; Label every 10 units
+        Gui Add,text, x-60 vylab%A_Index% w30 +Right, %A_Index% >  ; x-60 is left off Screen
+  }
+
+Gui Show, W%WindowWidth% h%WindowHeight%,Results
+Return
+
+GuiSize:  ; Launched when the window is resized, minimized, maximized, or restored.
+  If A_EventInfo = 1  ; The window has been Minimized.  No action needed.
+      Return
+  GraphDestroy()
+
+  Plotwidth := A_GuiWidth - LeftMargin-RightMargin
+  Plotheight := A_GuiHeight-TopMargin-BottomMargin
+  LabelposX := A_GuiWidth/2
+  LabelposY := A_GuiHeight-50
+
+  ;dummy labels
+  dummxpos := A_GuiWidth-RightMargin
+  dummypos := A_GuiHeight-BottomMargin
+  GuiControl, move, dummy, x0 y%DummyPos% w%A_ScreenWidth% ; the Bottom dummy
+  GuiControl, move, dummy, x%DummxPos% y%TopMargin% h%A_ScreenHeight% ; the Right dummy
+
+  ; X_labels (Bottom)
+  ypos := dummypos+5
+  lw_1 := PlotWidth/xw
+  lw_2 := LeftMargin-lw_1/2
+  Loop, %Plotwidth%
+    {
+      xpos := lw_1*A_Index+lw_2
+      GuiControlGet, name,,xlab%A_Index%
+      If name
+          GuiControl, move, %name%, x%xPos% y%yPos%
+    }
+  ; Y-labels
+  lh_1 := PlotHeight/yh
+  lh_2 := TopMargin-lh_1/2-7
+  Loop, %PlotHeight%
+    {
+      pos := lh_1*A_Index +lh_2
+      GuiControlGet, name,,ylab%A_Index%
+      If name
+          GuiControl, movedraw, %name%, x%X_Pos_Left_Y_Label% y%Pos%
+    }
+
+  GraphCreate(ScriptID,LeftMargin,TopMargin,PlotWidth,PlotHeight,"GraphOpt_")
+
+  for index, element in Array
+  {
+    x := A_Index *__graph_lineWidth*plotWidth/StartWidth
+    xleft := x-__graph_lineWidth*plotWidth/StartWidth-1
+    Y_value := __graph_lineWidth*plotHeight/StartHeight
+
+    SetFormat, IntegerFast, H ; We're talking Hex now.
+    Loop, Parse, element , CSV
+      {
+        y := A_Index /xw*plotHeight
+        ytop := y-Y_value-1
+        z :=  Round(255/ydif*(A_Loopfield-ymin)) ; Autoscale the Z values
         z += 0  ; Sets A_Loopfield (which previously contained e.g. 11) to be 0xB.
         z := SubStr(z, 3) ;  This removes 0x.
-        z := SubStr("0" . z, -1) ;This pads the number with a 0.
-		color := "0x" . z . z . z  ; make a greyscale plot
-    
-   Pen := DllCall("CreatePen", UInt,0, UInt,0, UInt, Color)
-   DllCall("SelectObject", UInt,__graph_MemoryDC, UInt,Pen)
-   Brush := DllCall("CreateSolidBrush", UInt, Color) ; a pen AND a brush is needed to prevent screendoor effect.
-   DllCall("SelectObject", UInt,__graph_MemoryDC, UInt,Brush)
-   DllCall("Rectangle", UInt,__graph_MemoryDC, UInt, xleft, UInt, ytop
-      , UInt, x, UInt, y)
-   DllCall("DeleteObject", UInt,Pen)
-   DllCall("DeleteObject", UInt,Brush)
-	}		
-}
+        z := SubStr("0" . z, -1) ;This pads the Number with a 0.
+        Color := "0x" . z . z . z  ; make a greyscale plot
+        Pen := DllCall("CreatePen", UInt,0, UInt,0, UInt, Color)
+        DllCall("SelectObject", UInt,__graph_MemoryDC, UInt,Pen)
+        Brush := DllCall("CreateSolidBrush", UInt, Color) ; a pen AND a brush is needed to prevent Screendoor effect.
+        DllCall("SelectObject", UInt,__graph_MemoryDC, UInt,Brush)
+        DllCall("Rectangle", UInt,__graph_MemoryDC, UInt, xleft, UInt, ytop, UInt, x, UInt, y)
+        DllCall("DeleteObject", UInt,Pen)
+        DllCall("DeleteObject", UInt,Brush)
+      }
+  }
+GraphDraw() ;
+
 SetFormat, IntegerFast, d ; We're talking decimal now.
-GraphDraw()
+;MsgBox, x= %x% xleft= %xleft% linewidth=%__graph_lineWidth%
 duration := A_TickCount - Start ; timer
-return
+Return
 
 ; terminate script
 quit:
- 
-GuiEscape:
-GraphClear()
-;return
 
-MsgBox, That took %duration% mseconds
+GuiEscape:
+  GraphClear()
+  ;return
+
+  MsgBox, That took %duration% mSeconds
 GuiClose:
-GraphDestroy()
-ExitApp
+  GraphDestroy()
+  ExitApp
